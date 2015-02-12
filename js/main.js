@@ -8,6 +8,7 @@ function preload() {
 	game.load.image('background', 'assets/sprites/background.jpg');
 	game.load.image('boy', 'assets/sprites/boy.png');
 	game.load.image('heart', 'assets/sprites/sadheart.png');
+	game.load.image('picture', 'assets/sprites/lose.png');
 	game.load.audio('music', 'assets/audio/Ashton Love - Paris (Original Mix).mp3');
 }
 
@@ -23,6 +24,9 @@ var fireButton;
 var explosions;
 var enemyBullet;
 var firingTimer = 0;
+var picture;
+var timer;
+var current = 3;
 
 
 function create() {
@@ -48,7 +52,7 @@ function create() {
     game.input.onDown.add(changeVolume, this);
 	
 	//heart
-	emitter = game.add.emitter(game.world.centerX, game.world.centerY, 10);
+	emitter = game.add.emitter(450, 350, 10);
     emitter.makeParticles('heart', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], 200, true, true);
     emitter.minParticleSpeed.setTo(-200, -300);
     emitter.maxParticleSpeed.setTo(200, -400);
@@ -71,9 +75,50 @@ function create() {
         sprite.events.onInputDown.add(destroySprite, this);
     }
 	//loser
+	
 	picture = game.add.sprite(game.world.centerX, game.world.centerY, 'picture');
     picture.anchor.setTo(0.5, 0.5);
     picture.scale.setTo(2, 2);
+	
+	//	Create our Timer
+	timer = game.time.craete(false);
+	
+	//	Set a TimerEvent to occur after 3 seconds
+	timer.add(3000, fade, this);
+	
+	//	Start the timer running - this is important!
+	//	It won't start automatically, allowing you to hook it to button events and the like.
+	timer.start();
+}
+
+function fade(){
+	var tween;
+	if (picture.alpha === 1){
+		tween = game.add.tween(picture).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+        game.add.tween(picture).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true);
+	}
+	else
+    {
+        game.add.tween(picture).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true);
+        tween = game.add.tween(picture).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
+	}
+	tween.onComplete.add(change, this);
+}
+
+function change(){
+	if (picture.alpha === 0)
+    {
+    picture.loadTexture('picture' + current);
+	}
+    else
+    {
+        picture.loadTexture('picture' + current);
+    }
+	current++;
+	if (current > 7){
+		current = 1;
+	}
+	timer.add(3000, fade, this);
 }
 
 function update() {
