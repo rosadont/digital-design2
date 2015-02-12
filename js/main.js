@@ -53,7 +53,6 @@ function create() {
     emitter.bounce.setTo(0.5, 0.5);
     emitter.angularDrag = 30;
     emitter.start(false, 4000, 400);
-
 }
 
 function update() {
