@@ -11,35 +11,24 @@ function preload() {
 	game.load.audio('music', 'assets/audio/Ashton Love - Paris (Original Mix).mp3');
 }
 
+var picture;
 var sprite;
 var arrows;
 var fireRate = 100;
 var nextFire = 0;
-var score;
-var scoreText;
-var player;
-var aliens;
 var hearts;
 var bulletTime = 0;
 var cursors;
 var fireButton;
 var explosions;
-var starfield;
-var score = 0;
-var scoreString = '';
-var scoreText;
-var lives;
 var enemyBullet;
 var firingTimer = 0;
-var stateText;
-var livingEnemies = [];
+
 
 function create() {
 	
 	game.add.image(0, 0, 'background');
-	
-	var boy = game.add.sprite(300, 400, 'boy');
-
+	var boy = game.add.sprite(350, 400, 'boy');
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     arrows = game.add.group();
@@ -50,10 +39,7 @@ function create() {
     arrows.setAll('outOfBoundsKill', true);
     
     sprite = game.add.sprite(650, 100, 'cupid');
-    //sprite.anchor.set(0.5);
-
     game.physics.enable(sprite, Phaser.Physics.ARCADE);
-
     sprite.body.allowRotation = false;
 	
 	//music stuff
@@ -84,53 +70,11 @@ function create() {
 		var fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         sprite.events.onInputDown.add(destroySprite, this);
     }
-	game.physics.arcade.overlap(arrows, sprite, collisionHandler, null, this);
-	
-	 //  The score
-    scoreString = 'Score : ';
-    scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
-
-    //  Lives
-    lives = game.add.group();
-    game.add.text(game.world.width - 100, 10, 'Lives : ', { font: '34px Arial', fill: '#fff' });
-
-    //  Text
-    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
-    stateText.anchor.setTo(0.5, 0.5);
-    stateText.visible = false;
-
-    for (var i = 0; i < 3; i++) 
-    {
-        var ship = lives.create(game.world.width - 100 + (30 * i), 60, 'ship');
-        ship.anchor.setTo(0.5, 0.5);
-        ship.angle = 90;
-        ship.alpha = 0.4;
-    }
+	//loser
+	picture = game.add.sprite(game.world.centerX, game.world.centerY, 'picture');
+    picture.anchor.setTo(0.5, 0.5);
+    picture.scale.setTo(2, 2);
 }
-
-function collisionHandler(arrows, sprite){
-	
-	//  When a bullet hits an alien we kill them both
-	arrows.kill();
-    sprite.kill();
-
-    //  Increase the score
-    score += 20;
-    scoreText.text = scoreString + score;
-
-    if (sprite.countLiving() == 0)
-    {
-        score += 1000;
-        scoreText.text = scoreString + score;
-
-        hearts.callAll('kill',this);
-        stateText.text = " You Won, \n Click to restart";
-        stateText.visible = true;
-
-        //the "click to restart" handler
-        game.input.onTap.addOnce(restart,this);
-    }
-}`
 
 function update() {
 	
@@ -171,98 +115,3 @@ function changeVolume(pointer) {
         music.volume -= 0.1;
     }
 }
-
-function restart () {
-
-    //  A new level starts  
-    //resets the life count
-    lives.callAll('revive');
-    //  And brings the aliens back from the dead :)
-    cupid.removeAll();
-
-    //revives the player
-    player.revive();
-    //hides the text
-    stateText.visible = false;
-}
- /*
-
-function update() {
-
-    if (sprite.alive)
-    {
-        //  Reset the player, then check for movement keys
-        sprite.body.velocity.setTo(0, 0);
-
-        if (cursors.left.isDown)
-        {
-            sprite.body.velocity.x = -200;
-        }
-        else if (cursors.right.isDown)
-        {
-            sprite.body.velocity.x = 200;
-        }
-
-        //  Firing?
-        if (fireButton.isDown)
-        {
-            fireBullet();
-        }
-
-        if (game.time.now > firingTimer)
-        {
-            enemyFires();
-        }
-
-        //  Run collision
-        game.physics.arcade.overlap(bullets, aliens, collisionHandler, null, this);
-        game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
-    }
-
-}
-
-
-function enemyHitsPlayer (sprite, hearts) {
-    
-    bullet.kill();
-
-    live = lives.getFirstAlive();
-
-    if (live)
-    {
-        live.kill();
-    }
-
-    // When the player dies
-    if (lives.countLiving() < 1)
-    {
-        player.kill();
-        hearts.callAll('kill');
-
-        stateText.text=" GAME OVER \n Click to restart";
-        stateText.visible = true;
-
-        //the "click to restart" handler
-        game.input.onTap.addOnce(restart,this);
-    }
-
-}
-
-function fireBullet () {
-
-    //  To avoid them being allowed to fire too fast we set a time limit
-    if (game.time.now > bulletTime){
-        //  Grab the first bullet we can from the pool
-        bullet = bullets.getFirstExists(false);
-
-        if (bullet)
-        {
-            //  And fire it
-            bullet.reset(player.x, player.y + 8);
-            bullet.body.velocity.y = -400;
-            bulletTime = game.time.now + 200;
-        }
-    }
-}
-
- */
