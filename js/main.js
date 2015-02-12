@@ -19,7 +19,7 @@ var score;
 var scoreText;
 var player;
 var aliens;
-var bullets;
+var hearts;
 var bulletTime = 0;
 var cursors;
 var fireButton;
@@ -130,7 +130,7 @@ function collisionHandler(arrows, sprite){
         //the "click to restart" handler
         game.input.onTap.addOnce(restart,this);
     }
-}
+}`
 
 function update() {
 	
@@ -174,32 +174,18 @@ function changeVolume(pointer) {
 
 function restart () {
 
-    //  A new level starts
-    
+    //  A new level starts  
     //resets the life count
     lives.callAll('revive');
     //  And brings the aliens back from the dead :)
-    aliens.removeAll();
-    createAliens();
+    cupid.removeAll();
 
     //revives the player
     player.revive();
     //hides the text
     stateText.visible = false;
-
 }
  /*
-
-function create() {
-
-   
-
-    //  An explosion pool
-    explosions = game.add.group();
-    explosions.createMultiple(30, 'kaboom');
-    explosions.forEach(setupInvader, this); 
-}
-
 
 function update() {
 
@@ -236,7 +222,7 @@ function update() {
 }
 
 
-function enemyHitsPlayer (sprite, bullet) {
+function enemyHitsPlayer (sprite, hearts) {
     
     bullet.kill();
 
@@ -265,8 +251,7 @@ function enemyHitsPlayer (sprite, bullet) {
 function fireBullet () {
 
     //  To avoid them being allowed to fire too fast we set a time limit
-    if (game.time.now > bulletTime)
-    {
+    if (game.time.now > bulletTime){
         //  Grab the first bullet we can from the pool
         bullet = bullets.getFirstExists(false);
 
@@ -278,8 +263,6 @@ function fireBullet () {
             bulletTime = game.time.now + 200;
         }
     }
-
 }
-
 
  */
