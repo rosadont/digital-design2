@@ -18,7 +18,7 @@ function create() {
     game.add.tileSprite(0, 0, 3400, 1000, 'background');
  
 	
-	//criminals
+/* 	//criminals
 	//game.add.sprite(0, 0, 'background');
 	var group = game.make.group();
 
@@ -34,7 +34,7 @@ function create() {
     bmd.addToWorld();
 
     //  Draw the group
-    bmd.drawGroup(group);
+    bmd.drawGroup(group); */
 	
 	
 	//music
