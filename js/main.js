@@ -1,162 +1,145 @@
- 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
-    game.load.image('cupid', 'assets/sprites/cupid.png');
-    game.load.image('arrows', 'assets/sprites/arrow.png');
-	game.load.image('background', 'assets/sprites/background.jpg');
-	game.load.image('boy', 'assets/sprites/boy.png');
-	game.load.image('heart', 'assets/sprites/sadheart.png');
-	game.load.image('picture', 'assets/sprites/lose.png');
-	game.load.audio('music', 'assets/audio/Ashton Love - Paris (Original Mix).mp3');
+    game.load.image('background','assets/sprites/background.jpg');
+    game.load.image('player','assets/sprites/police.png');
+	game.load.image('criminal', 'assets/sprites/criminal.png');
+	game.load.audio('music', 'assets/audio/Axwell - Ingrosso - We Come We Rave We Love (Dex Morrison Remix).mp3');
+	game.load.image('phaser', 'assets/sprites/criminal.png');
 }
 
-var picture;
-var sprite;
-var arrows;
-var fireRate = 100;
-var nextFire = 0;
-var hearts;
-var bulletTime = 0;
+var player;
 var cursors;
-var fireButton;
-var explosions;
-var enemyBullet;
-var firingTimer = 0;
-var picture;
-var timer;
-var current = 3;
-
 
 function create() {
-	
-	game.add.image(0, 0, 'background');
-	var boy = game.add.sprite(350, 400, 'boy');
-    game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    arrows = game.add.group();
-    arrows.enableBody = true;
-    arrows.physicsBodyType = Phaser.Physics.ARCADE;
-    arrows.createMultiple(50, 'arrows');
-    arrows.setAll('checkWorldBounds', true);
-    arrows.setAll('outOfBoundsKill', true);
-    
-    sprite = game.add.sprite(650, 100, 'cupid');
-    game.physics.enable(sprite, Phaser.Physics.ARCADE);
-    sprite.body.allowRotation = false;
+    game.world.setBounds(0, 0, 3400, 1000);
+    game.add.tileSprite(0, 0, 3400, 1000, 'background');
+ 
 	
-	//music stuff
-	music = game.add.audio('music');
+	//criminals
+	//game.add.sprite(0, 0, 'background');
+	var group = game.make.group();
+
+    //  Add a bunch of sprites in random positions to the group
+    for (var i = 0; i < 40; i++)
+    {
+        group.create(game.world.randomX, game.world.randomY, 'criminal');
+    }
+
+    //  This is the BitmapData we're going to be drawing to
+    var bmd = game.add.bitmapData(game.width, game.height);
+
+    bmd.addToWorld();
+
+    //  Draw the group
+    bmd.drawGroup(group);
+	
+	
+	//music
+	
+    game.stage.backgroundColor = '#182d3b';
+    game.input.touch.preventDefault = false;
+
+    music = game.add.audio('music');
+
     music.play();
+
     game.input.onDown.add(changeVolume, this);
 	
-	//heart
-	emitter = game.add.emitter(450, 350, 10);
-    emitter.makeParticles('heart', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], 200, true, true);
-    emitter.minParticleSpeed.setTo(-200, -300);
-    emitter.maxParticleSpeed.setTo(200, -400);
-    emitter.gravity = 150;
-    emitter.bounce.setTo(0.5, 0.5);
-    emitter.angularDrag = 30;
-    emitter.start(false, 4000, 400);
-	
-	var mx = game.width - game.cache.getImage('cupid').width;
-    var my = game.height - game.cache.getImage('cupid').height;
-	
-	for (var i = 0; i < 5; i++){
-		sprite.animations.add('swim');
-		sprite.animations.play('swim', 30, true);
-		game.add.tween(sprite).to({y : 300}, 2000,  Phaser.Easing.Quadratic.InOut, true, 0, 1000, true);
-        sprite.inputEnabled = true;
-        sprite.input.useHandCursor = true;
-		var cursors = game.input.keyboard.createCursorKeys();
-		var fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        sprite.events.onInputDown.add(destroySprite, this);
-    }
-	//loser
-	
-	picture = game.add.sprite(game.world.centerX, game.world.centerY, 'picture');
-    picture.anchor.setTo(0.5, 0.5);
-    picture.scale.setTo(2, 2);
-	
-	//	Create our Timer
-	timer = game.time.craete(false);
-	
-	//	Set a TimerEvent to occur after 3 seconds
-	timer.add(3000, fade, this);
-	
-	//	Start the timer running - this is important!
-	//	It won't start automatically, allowing you to hook it to button events and the like.
-	timer.start();
-}
+	//bitmapData
+	game.physics.startSystem(Phaser.Physics.P2JS);
 
-function fade(){
-	var tween;
-	if (picture.alpha === 1){
-		tween = game.add.tween(picture).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
-        game.add.tween(picture).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true);
-	}
-	else
-    {
-        game.add.tween(picture).to( { alpha: 1 }, 2000, Phaser.Easing.Linear.None, true);
-        tween = game.add.tween(picture).to( { alpha: 0 }, 2000, Phaser.Easing.Linear.None, true);
-	}
-	tween.onComplete.add(change, this);
-}
+    player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
 
-function change(){
-	if (picture.alpha === 0)
-    {
-    picture.loadTexture('picture' + current);
-	}
-    else
-    {
-        picture.loadTexture('picture' + current);
-    }
-	current++;
-	if (current > 7){
-		current = 1;
-	}
-	timer.add(3000, fade, this);
+    game.physics.p2.enable(player);
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+    game.camera.follow(player);
+	
+	//
+	//	Here we create a group, populate it with sprites, give them all a random velocity
+	//	and then check the group against itself for collision
+
+/* 	sprites = game.add.group();
+
+ 	for (var i = 0; i < 30; i++)
+	{
+		//var s = sprites.create(game.rnd.integerInRange(100, 700), game.rnd.integerInRange(32, 200), 'spinner');
+		//s.animations.add('spin', [0,1,2,3]);
+		//s.play('spin', 20, true);
+		game.physics.enable(s, Phaser.Physics.ARCADE);
+		//s.body.velocity.x = game.rnd.integerInRange(-200, 200);
+		//s.body.velocity.y = game.rnd.integerInRange(-200, 200);
+	} 
+
+	//	Here we'll create a new group
+	var groupB = game.make.group();
+
+	//	And add a sprite into it
+	groupB.create(150, 320, 'phaser');
+
+	//	It becomes a child of the Sprites group
+	sprites.add(groupB);
+
+	//	This will set physics properties on all group children that have a 'body' (i.e. it will skip the groupB)
+	sprites.setAll('body.collideWorldBounds', true);
+	sprites.setAll('body.bounce.x', 1);
+	sprites.setAll('body.bounce.y', 1);
+	sprites.setAll('body.minBounceVelocity', 0); */
+
 }
 
 function update() {
 	
-    if (game.input.activePointer.isDown){
-        fire();
+	//bitmapData
+	  player.body.setZeroVelocity();
+
+    if (cursors.up.isDown)
+    {
+        player.body.moveUp(300)
     }
-}
+    else if (cursors.down.isDown)
+    {
+        player.body.moveDown(300);
+    }
 
-function fire() {
-
-    if (game.time.now > nextFire && arrows.countDead() > 0) {
-        nextFire = game.time.now + fireRate;
-        var arrow = arrows.getFirstDead();
-        arrow.reset(sprite.x, sprite.y);
-        game.physics.arcade.moveToPointer(arrow, 300);
+    if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -300;
+    }
+    else if (cursors.right.isDown)
+    {
+        player.body.moveRight(300);
     }
 }
 
 function render() {
 	
-	//music stuff
+	//music
 	game.debug.soundInfo(music, 20, 32);
-}
-
-function resetBullet (arrows) {
-
-    //  Called if the bullet goes out of the screen
-    arrows.kill();
+	
+	//bitmapData
+	
+    //game.debug.cameraInfo(game.camera, 32, 32);
+    //game.debug.spriteCoords(player, 32, 500);
+	
+	//criminal
+	//game.physics.arcade.collide(sprites);
 
 }
 
 function changeVolume(pointer) {
 
-    if (pointer.y < 300){
+    if (pointer.y < 300)
+    {
         music.volume += 0.1;
     }
-    else{
+    else
+    {
         music.volume -= 0.1;
     }
+
 }
