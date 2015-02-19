@@ -6,11 +6,19 @@ function preload() {
     game.load.image('player','assets/sprites/police.png');
 	game.load.image('criminal', 'assets/sprites/criminal.png');
 	game.load.audio('music', 'assets/audio/Axwell - Ingrosso - We Come We Rave We Love (Dex Morrison Remix).mp3');
-	game.load.image('phaser', 'assets/sprites/criminal.png');
+	game.load.image('bullet', 'assets/sprites/bullet.png');
 }
 
 var player;
 var cursors;
+var bullets;
+var bullet;
+var criminal;
+var bullets;
+var bulletTime = 0;
+var fireButton;
+var firingTimer = 0;
+var stateText;
 
 function create() {
 
@@ -18,7 +26,7 @@ function create() {
     game.add.tileSprite(0, 0, 3400, 1000, 'background');
  
 	
-/* 	//criminals
+ 	//criminals
 	//game.add.sprite(0, 0, 'background');
 	var group = game.make.group();
 
@@ -34,7 +42,7 @@ function create() {
     bmd.addToWorld();
 
     //  Draw the group
-    bmd.drawGroup(group); */
+    bmd.drawGroup(group);
 	
 	
 	//music
@@ -51,44 +59,29 @@ function create() {
 	//bitmapData
 	game.physics.startSystem(Phaser.Physics.P2JS);
 
-    player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
+    player = game.add.sprite(100, 900, 'player');
 
     game.physics.p2.enable(player);
 
     cursors = game.input.keyboard.createCursorKeys();
+	fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     game.camera.follow(player);
 	
-	//
-	//	Here we create a group, populate it with sprites, give them all a random velocity
-	//	and then check the group against itself for collision
-
-/* 	sprites = game.add.group();
-
- 	for (var i = 0; i < 30; i++)
-	{
-		//var s = sprites.create(game.rnd.integerInRange(100, 700), game.rnd.integerInRange(32, 200), 'spinner');
-		//s.animations.add('spin', [0,1,2,3]);
-		//s.play('spin', 20, true);
-		game.physics.enable(s, Phaser.Physics.ARCADE);
-		//s.body.velocity.x = game.rnd.integerInRange(-200, 200);
-		//s.body.velocity.y = game.rnd.integerInRange(-200, 200);
-	} 
-
-	//	Here we'll create a new group
-	var groupB = game.make.group();
-
-	//	And add a sprite into it
-	groupB.create(150, 320, 'phaser');
-
-	//	It becomes a child of the Sprites group
-	sprites.add(groupB);
-
-	//	This will set physics properties on all group children that have a 'body' (i.e. it will skip the groupB)
-	sprites.setAll('body.collideWorldBounds', true);
-	sprites.setAll('body.bounce.x', 1);
-	sprites.setAll('body.bounce.y', 1);
-	sprites.setAll('body.minBounceVelocity', 0); */
+	//bullets
+	bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    bullets.createMultiple(30, 'bullet');
+    bullets.setAll('anchor.x', 0.5);
+    bullets.setAll('anchor.y', 1);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
+	
+	//  Text
+    stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
+    stateText.anchor.setTo(0.5, 0.5);
+    stateText.visible = false;
 
 }
 
@@ -114,6 +107,47 @@ function update() {
     {
         player.body.moveRight(300);
     }
+	
+	//bullets
+	        //  Firing?
+        if (fireButton.isDown)
+        {
+            fireBullet();
+        }
+	game.physics.arcade.overlap(bullets, criminal, collisionHandler, null, this);
+}
+
+function collisionHandler (bullet, criminal) {
+
+    //  When a bullet hits an alien we kill them both
+    bullet.kill();
+    criminal.kill();
+}
+
+function fireBullet () {
+
+    //  To avoid them being allowed to fire too fast we set a time limit
+    if (game.time.now > bulletTime)
+    {
+        //  Grab the first bullet we can from the pool
+        bullet = bullets.getFirstExists(false);
+
+        if (bullet)
+        {
+            //  And fire it
+            bullet.reset(player.x, player.y + 8);
+            bullet.body.velocity.y = -400;
+            bulletTime = game.time.now + 200;
+        }
+    }
+	
+	bullets.callAll('kill',this);
+    stateText.text=" You Won, \n Click to restart";
+    stateText.visible = true;
+
+    //the "click to restart" handler
+    game.input.onTap.addOnce(restart,this);
+
 }
 
 function render() {
@@ -141,5 +175,19 @@ function changeVolume(pointer) {
     {
         music.volume -= 0.1;
     }
+}
+
+
+function restart () {
+
+    //  A new level starts
+    //  And brings the aliens back from the dead :)
+    criminal.removeAll();
+    create();
+
+    //revives the player
+    player.revive();
+    //hides the text
+    stateText.visible = false;
 
 }
