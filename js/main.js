@@ -9,10 +9,10 @@ function preload() {
 }
 
 var player;
-var cursors;
+var cursors;/* 
 var penicl;
 var man;
-var stateText;
+var stateText; */
 
 function create() {
 
@@ -40,25 +40,29 @@ function create() {
 	fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     game.camera.follow(player);
 	
-	//  Text
+/* 	//  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
     stateText.anchor.setTo(0.5, 0.5);
-    stateText.visible = false;
+    stateText.visible = false; */
 	
-	//bouncing pencil
+/* 	//bouncing pencil
     game.physics.arcade.gravity.y = 150;
 	game.time.events.repeat(Phaser.Timer.SECOND * 2, 10, createBall, this);
-
+ */
+ 
+	//create man
+	createBox();
+    game.time.events.repeat(Phaser.Timer.SECOND, 20, createBox, this);
 }
 
-function createBall() {
+/* function createBall() {
 
     //  A bouncey ball sprite just to visually see what's going on.
     var ball = game.add.sprite(game.world.randomX, 0, 'ball');
     game.physics.enable(ball, Phaser.Physics.ARCADE);
     ball.body.bounce.y = 0.9;
     ball.body.collideWorldBounds = true;
-}
+} */
 
 function update() {
 	
@@ -79,20 +83,12 @@ function update() {
 	game.physics.arcade.overlap(pencil, man, collisionHandler, null, this);
 }
 
-function collisionHandler (pencil, man) {
+/* function collisionHandler (pencil, man) {
 
     //  When a bullet hits an alien we kill them both
     pencil.kill();
     man.kill();
-}
-
-
-function collisionHandler (pencil, man) {
-
-    //  When a bullet hits an alien we kill them both
-    pencil.kill();
-    man.kill();
-}
+} */
 
 function render() {
 	
@@ -108,4 +104,16 @@ function changeVolume(pointer) {
     else{
         music.volume -= 0.1;
     }
+}
+
+function createBox() {
+
+	var sprite = game.add.sprite(game.world.randomX, game.world.randomY, game.cache.getBitmapData('ball'));
+    game.physics.arcade.enable(sprite);
+
+    sprite.body.collideWorldBounds = true;
+    sprite.body.bounce.set(1);
+	sprite.body.velocity.x = game.rnd.realInRange(-200, 200);
+	sprite.body.velocity.y = game.rnd.realInRange(-200, 200);
+
 }
