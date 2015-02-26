@@ -5,7 +5,6 @@ function preload() {
     game.load.image('background','assets/sprites/background.jpg');
     game.load.image('player','assets/sprites/man.png');
 	game.load.audio('music', 'assets/audio/Axwell - Ingrosso - We Come We Rave We Love (Dex Morrison Remix).mp3');
-	game.load.image('bullet', 'assets/sprites/bullet.png');
 	game.load.image('ball', 'assets/sprites/pencil.png');
 }
 
@@ -40,8 +39,6 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
 	fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     game.camera.follow(player);
-
-    game.camera.follow(player);
 	
 	//  Text
     stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#fff' });
@@ -66,7 +63,7 @@ function createBall() {
 function update() {
 	
 	//bitmapData
-	  player.body.setZeroVelocity();
+	player.body.setZeroVelocity();
     if (cursors.up.isDown){
         player.body.moveUp(300)
     }
@@ -79,7 +76,6 @@ function update() {
     else if (cursors.right.isDown){
         player.body.moveRight(300);
     }
-	
 	game.physics.arcade.overlap(pencil, man, collisionHandler, null, this);
 }
 
